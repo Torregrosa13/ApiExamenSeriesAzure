@@ -1,0 +1,6 @@
+@ApiExamenSeriesAzure_HostAddress = http://localhost:5234
+
+GET {{ApiExamenSeriesAzure_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
