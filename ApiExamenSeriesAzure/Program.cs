@@ -1,5 +1,7 @@
 using ApiExamenSeriesAzure.Data;
+using ApiExamenSeriesAzure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,39 +11,29 @@ builder.Services.AddOpenApi();
 
 string connectionString = builder.Configuration.GetConnectionString("SqlAzure");
 builder.Services.AddDbContext<SeriesContext>(options => options.UseSqlServer(connectionString));
-
+builder.Services.AddTransient<RepositorySeries>();
+builder.Services.AddOpenApi();
+builder.Services.AddControllers();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
+app.MapOpenApi();
 app.UseHttpsRedirection();
 
-var summaries = new[]
+app.UseSwaggerUI(options =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    options.SwaggerEndpoint("/openapi/v1.json", "Api Examen Series");
+    options.RoutePrefix = "";
+});
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+app.UseAuthorization();
+
+app.MapControllers();
 
 app.Run();
 
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

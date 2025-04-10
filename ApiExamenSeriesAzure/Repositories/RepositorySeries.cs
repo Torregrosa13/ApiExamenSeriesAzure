@@ -1,4 +1,5 @@
-﻿using ApiExamenSeriesAzure.Data;
+﻿using System.Reflection.Metadata.Ecma335;
+using ApiExamenSeriesAzure.Data;
 using ApiExamenSeriesAzure.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -57,9 +58,11 @@ namespace ApiExamenSeriesAzure.Repositories
             return await this.context.Personajes.ToListAsync();
         }
 
-        public async Task CambiarPersonajeSerie()
+        public async Task CambiarPersonajeSerie(int idSerie, int idPersonaje)
         {
-
+            Personaje p = await this.context.Personajes.FirstOrDefaultAsync(x => x.IdPersonaje == idPersonaje);
+            p.IdSerie = idSerie;
+            await this.context.SaveChangesAsync();
         }
     }
 }
